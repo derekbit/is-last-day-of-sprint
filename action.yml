@@ -1,0 +1,37 @@
+# action.yaml
+name: 'Is Last Day of Current Sprint'
+description: 'A GitHub action to check if today is in last day of current sprint'
+inputs:
+  owner:
+    description: The account name of the GitHub organization.
+    required: true
+  number:
+    description: Project number as you see it in the URL of the project.
+    required: true
+  date:
+    description: 'Date with format YYYY-MM-DD'
+    required: true
+  token:
+    description: Personal access token for the GitHub repository.
+    required: true
+outputs:
+  last_day:
+    description: 'Is last day of current sprint'
+    value: ${{ steps.is-last-day-of-sprint.outputs.last_day }}
+runs:
+  using: 'composite'
+  steps:
+  - name: Install Python
+    uses: actions/setup-python@v5
+    with:
+      python-version: '3.12'
+  - name: Install Dependencies
+    run: python -m pip install requests
+    shell: bash
+  - name: Is Last Day of Sprint
+    id: is-last-day-of-sprint
+    run: |
+      python src/is-last-day-of-sprint.py ${{ inputs.owner }} ${{ inputs.number }} ${{ inputs.date }}
+    env:
+      GITHUB_TOKEN: ${{ inputs.token }}
+    shell: bash

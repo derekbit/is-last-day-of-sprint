@@ -1,0 +1,35 @@
+# .github/workflows/test_action.yaml
+name: Test Action
+on:
+  workflow_dispatch:
+    inputs:
+      github_org:
+        description: "GitHub organization"
+        default: "dereksu-org"
+        required: true
+      github_project_number:
+        description: "GitHub project number"
+        default: "3"
+        required: true
+      date:
+        description: "Date with format YYYY-MM-DD"
+        default: "2023-01-01"
+        required: true
+jobs:
+  test_action:
+    runs-on: ubuntu-latest
+    name: Check if the date is the last day of the current sprint
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Check if the date is the last day of the current sprint
+      id: is-last-day-of-sprint
+      uses: ./ # Uses an action in the root directory
+      # or use a released Github Action
+      with:
+        owner: ${{ github.event.inputs.github_org }}
+        number: ${{ github.event.inputs.github_project_number }}
+        token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
+        date: ${{ github.event.inputs.date }}
+    - name: Print the result
+      run: echo "${{ steps.is-last-day-of-sprint.outputs.last_day }}"
